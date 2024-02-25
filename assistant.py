@@ -6,13 +6,15 @@ import shutil
 import os
 import subprocess
 from openai import AsyncOpenAI
+import socket
+import threading
 
 print("Starting whisper subprocess")
 args = './stream -m ./models/ggml-tiny.en.bin -t 6 --step 0 --length 5000 -vth 0.6'.split(' ')
 whisper_proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
 # Define API keys and voice ID
-OPENAI_API_KEY = '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'
+OPENAI_API_KEY = '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'
 ELEVENLABS_API_KEY = 'a1c47b5b440c613cd300c1509fa7d88c'
 VOICE_ID = '7nDZZfx8upeW4iy5X91D'
 
@@ -145,7 +147,17 @@ def get_user_input():
     print("Got his message:", res)
     return res
 
+def socket_function():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(("localhost",3001))
+
+    while True:
+        print(s.recv(1024).decode("utf-8"))
+
 if __name__ == "__main__":
+    socket_thread = threading.Thread(target=socket_function)
+    socket_thread.start()
+
     user_query = ""
     first_message = True
     while True:
